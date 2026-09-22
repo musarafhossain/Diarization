@@ -99,11 +99,6 @@ if os.path.exists(built_subfolder) and built_subfolder != target_dist:
     except OSError:
         pass
 
-# Ensure models are mirrored into dist/models
-models_src = os.path.join(os.path.dirname(target_dist), 'models')
-models_dst = os.path.join(target_dist, 'models')
-if os.path.exists(models_src) and not os.path.exists(models_dst):
-    shutil.copytree(models_src, models_dst, dirs_exist_ok=True)
 
 # Clean up temporary PyInstaller build directory (build/diarize)
 import atexit

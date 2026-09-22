@@ -56,9 +56,9 @@ deactivate
 
 ---
 
-## 4. Download Offline Models (into `models`)
+## 4. Download Offline Models (into `dist\models`)
 
-To download Pyannote segmentation and embedding models directly into `models` (and mirrored to `dist\models` if present):
+To download Pyannote segmentation and embedding models directly into `dist\models`:
 ```powershell
 python .\src\download_models.py <YOUR_HF_TOKEN>
 ```
@@ -67,7 +67,7 @@ python .\src\download_models.py <YOUR_HF_TOKEN>
 >   ```powershell
 >   python .\src\download_models.py
 >   ```
-> - The script automatically saves the models to `.\models` (and syncs to `.\dist\models`) and ensures `config.yaml` is properly configured.
+> - The script automatically saves the models to `.\dist\models` and ensures `config.yaml` is properly configured.
 
 ---
 
@@ -76,7 +76,7 @@ python .\src\download_models.py <YOUR_HF_TOKEN>
 ### Option A: Using the Python Environment (Source Code)
 Once `.venv` is activated:
 ```powershell
-python .\src\diarize.py --audio_path ".\voice\21a48b5e-fb13-489a-acb9-bd952a28eca0.wav" --output_dir ".\output" --model_dir ".\models"
+python .\src\diarize.py --audio_path ".\voice\21a48b5e-fb13-489a-acb9-bd952a28eca0.wav" --output_dir ".\output" --model_dir ".\dist\models"
 ```
 
 ### Option B: Using the Standalone Build Executable (Distribution)

@@ -30,8 +30,8 @@ def main():
     parser.add_argument("--token", dest="opt_token", default=None, help="Hugging Face access token")
     parser.add_argument(
         "--dest_dir",
-        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models")),
-        help="Destination directory for models (defaults to models)"
+        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dist", "models")),
+        help="Destination directory for models (defaults to dist/models)"
     )
     args = parser.parse_args()
 
@@ -102,12 +102,6 @@ def main():
                 print(f"\nUpdated model paths in existing config.yaml.")
         except Exception as e:
             print(f"Warning: Could not update existing config.yaml: {e}", file=sys.stderr)
-    # If dist exists, mirror models there as well
-    dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dist"))
-    if os.path.exists(dist_dir):
-        dist_models_dir = os.path.join(dist_dir, "models")
-        shutil.copytree(dest_dir, dist_models_dir, dirs_exist_ok=True)
-        print(f"Mirrored models to distribution folder: {dist_models_dir}")
 
     print(f"\nAll models downloaded and configured in: {dest_dir}")
 
