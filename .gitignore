@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+ENV*/
+
+# Offline Models & weights (downloaded via download_models.py)
+models/
+*.bin
+*.onnx
+*.pt
+*.pth
+.cache/
+huggingface/
+
+# Inference runtime output & temporary data
+output/
+*.log
+
+# Audio files (voice samples)
+# voice/*.wav
+# voice/*.mp3
+# voice/*.flac
+# voice/*.m4a
+# !voice/.gitkeep
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
