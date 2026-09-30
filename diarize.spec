@@ -104,8 +104,13 @@ built_subfolder = os.path.abspath(coll.name)
 target_dist = os.path.dirname(built_subfolder)
 
 if os.path.exists(built_subfolder) and built_subfolder != target_dist:
-    for item in os.listdir(built_subfolder):
-        src_item = os.path.join(built_subfolder, item)
+    # On macOS/Linux the executable is named 'diarize' (no extension), same as the
+    # containing folder 'dist/diarize/'. Rename the folder first so the executable
+    # can be moved to 'dist/diarize' without a name collision.
+    temp_folder = built_subfolder + '_tmp'
+    os.rename(built_subfolder, temp_folder)
+    for item in os.listdir(temp_folder):
+        src_item = os.path.join(temp_folder, item)
         dst_item = os.path.join(target_dist, item)
         if os.path.exists(dst_item):
             if os.path.isdir(dst_item):
@@ -114,7 +119,7 @@ if os.path.exists(built_subfolder) and built_subfolder != target_dist:
                 os.remove(dst_item)
         shutil.move(src_item, dst_item)
     try:
-        os.rmdir(built_subfolder)
+        os.rmdir(temp_folder)
     except OSError:
         pass
 

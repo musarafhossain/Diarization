@@ -104,7 +104,7 @@ python .\src\diarize.py --audio_path ".\voice\audio.wav" --output_dir ".\output"
 python .\src\diarize.py --audio_path ".\voice\audio.wav" --output_dir ".\output" --model_dir ".\dist\models" --device cuda
 
 # Force Apple Silicon GPU (macOS M1/M2/M3/M4)
-python src/diarize.py --audio_path "./voice/audio.wav" --output_dir "./output" --model_dir "./dist/models" --device mps
+python src/diarize.py --audio_path "./voice/21a48b5e-fb13-489a-acb9-bd952a28eca0.wav" --output_dir "./output" --model_dir "./dist/models" --device mps
 
 # Auto-detect (default, same as omitting --device)
 .\dist\diarize.exe --audio_path ".\voice\audio.wav" --output_dir ".\output" --model_dir ".\dist\models" --device auto
