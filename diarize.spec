@@ -1,4 +1,6 @@
 import os
+import sys
+import platform
 from PyInstaller.utils.hooks import collect_data_files
 import speechbrain
 import lightning_fabric
@@ -31,8 +33,25 @@ hiddenimports = [
     'torchaudio',
 ]
 
+IS_WINDOWS = sys.platform == 'win32'
+IS_MACOS = sys.platform == 'darwin'
+
+# Windows-only: version info resource, manifest, and .ico icon
+exe_version = 'version_info.txt' if IS_WINDOWS and os.path.exists('version_info.txt') else None
+exe_manifest = 'diarize.manifest' if IS_WINDOWS and os.path.exists('diarize.manifest') else None
+
+if IS_WINDOWS and os.path.exists('assets/ilvi_logo.ico'):
+    exe_icon = 'assets/ilvi_logo.ico'
+elif IS_MACOS and os.path.exists('assets/ilvi_logo.png'):
+    exe_icon = 'assets/ilvi_logo.png'
+else:
+    exe_icon = None
+
+# Use forward-slash entry point for cross-platform compatibility
+entry_point = os.path.join('src', 'diarize.py')
+
 a = Analysis(
-    ['src\\diarize.py'],
+    [entry_point],
     pathex=[],
     binaries=[],
     datas=datas,
@@ -62,9 +81,9 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    version='version_info.txt',
-    manifest='diarize.manifest',
-    icon='assets/ilvi_logo.ico',
+    version=exe_version,
+    manifest=exe_manifest,
+    icon=exe_icon,
 )
 coll = COLLECT(
     exe,
@@ -113,5 +132,3 @@ def cleanup_build():
 # Register at process exit and attempt immediate cleanup
 atexit.register(cleanup_build)
 cleanup_build()
-
-

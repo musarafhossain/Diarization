@@ -1,0 +1,25 @@
+{
+  "name": "diarization-engine-typescript",
+  "version": "1.0.0",
+  "description": "Modular offline speaker diarization engine for TypeScript and Node.js",
+  "type": "module",
+  "main": "DiarizationEngine.ts",
+  "types": "DiarizationEngine.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types index.ts",
+    "run-fresh": "node --experimental-strip-types index.ts --run-fresh"
+  },
+  "keywords": [
+    "speaker-diarization",
+    "pyannote",
+    "audio",
+    "speech",
+    "voice",
+    "typescript"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2"
+  }
+}

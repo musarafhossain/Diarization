@@ -57,7 +57,7 @@ def resolve_output_json(wav_path, output_path):
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     return output_path
 
-def diarize(wav_path, output_path, model_dir, threshold=0.90):
+def diarize(wav_path, output_path, model_dir, threshold=0.90, device="auto"):
     if not os.path.exists(wav_path):
         print(f"Error: Audio file not found: {wav_path}", file=sys.stderr)
         sys.exit(1)
@@ -125,17 +125,39 @@ def diarize(wav_path, output_path, model_dir, threshold=0.90):
         except Exception as inst_err:
             print(f"Warning: Failed to instantiate parameters: {str(inst_err)}", file=sys.stderr)
         
-        # Use GPU if available
-        if torch.cuda.is_available():
-            pipeline.to(torch.device("cuda"))
+        if device == "cuda":
+            if not torch.cuda.is_available():
+                print("Error: --device cuda requested but CUDA is not available", file=sys.stderr)
+                sys.exit(1)
+            torch_device = torch.device("cuda")
+        elif device == "mps":
+            if not (hasattr(torch.backends, "mps") and torch.backends.mps.is_available()):
+                print("Error: --device mps requested but MPS is not available", file=sys.stderr)
+                sys.exit(1)
+            torch_device = torch.device("mps")
+        elif device == "auto":
+            if torch.cuda.is_available():
+                torch_device = torch.device("cuda")
+            elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                torch_device = torch.device("mps")
+            else:
+                torch_device = torch.device("cpu")
+        else:
+            torch_device = torch.device("cpu")
+
+        if torch_device.type == "cuda":
+            pipeline.to(torch_device)
             print(f"[GPU ACTIVE] Using CUDA device: {torch.cuda.get_device_name(0)}")
+        elif torch_device.type == "mps":
+            pipeline.to(torch_device)
+            print("[GPU ACTIVE] Using Apple MPS (Metal Performance Shaders)")
         else:
             print("[INFO] Running diarization on CPU")
-            
+
         # Decode WAV using Python standard wave module to avoid torchaudio loader DLL issues
         waveform, sample_rate = load_wav_as_tensor(wav_path, torch)
-        if torch.cuda.is_available():
-            waveform = waveform.to(torch.device("cuda"))
+        if torch_device.type != "cpu":
+            waveform = waveform.to(torch_device)
             
         print(f"Processing diarization for {wav_path}...")
 
@@ -175,7 +197,8 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", required=True, help="Directory to save the output diarization JSON")
     parser.add_argument("--model_dir", required=True, help="Directory containing the offline pyannote models and config.yaml")
     parser.add_argument("--threshold", type=float, default=0.90, help="Clustering distance threshold (default 0.90)")
-    
+    parser.add_argument("--device", type=str, default="auto", choices=["auto", "cpu", "cuda", "mps"], help="Device to run on: 'auto' (use GPU if available), 'cpu', 'cuda' (NVIDIA GPU), or 'mps' (Apple Silicon GPU) (default: auto)")
+
     args = parser.parse_args()
-    
-    diarize(args.audio_path, args.output_dir, args.model_dir, args.threshold)
+
+    diarize(args.audio_path, args.output_dir, args.model_dir, args.threshold, args.device)

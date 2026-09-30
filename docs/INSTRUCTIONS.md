@@ -85,14 +85,199 @@ python .\src\diarize.py --audio_path ".\voice\21a48b5e-fb13-489a-acb9-bd952a28ec
 .\dist\diarize.exe --audio_path ".\voice\21a48b5e-fb13-489a-acb9-bd952a28eca0.wav" --output_dir ".\output" --model_dir ".\dist\models"
 ```
 
+### Device Selection (CPU / GPU)
+Use the `--device` flag to control whether diarization runs on CPU or GPU:
+
+| Value  | Behavior |
+|--------|----------|
+| `auto` | **(Default)** Uses the best available GPU (CUDA → MPS → CPU fallback) |
+| `cpu`  | Forces CPU execution even if a GPU is available |
+| `cuda` | Forces NVIDIA GPU (CUDA); exits with an error if not available |
+| `mps`  | Forces Apple Silicon GPU (Metal); exits with an error if not available |
+
+Examples:
+```powershell
+# Force CPU (useful for debugging or machines without GPU drivers)
+python .\src\diarize.py --audio_path ".\voice\audio.wav" --output_dir ".\output" --model_dir ".\dist\models" --device cpu
+
+# Force NVIDIA GPU (Windows / Linux)
+python .\src\diarize.py --audio_path ".\voice\audio.wav" --output_dir ".\output" --model_dir ".\dist\models" --device cuda
+
+# Force Apple Silicon GPU (macOS M1/M2/M3/M4)
+python src/diarize.py --audio_path "./voice/audio.wav" --output_dir "./output" --model_dir "./dist/models" --device mps
+
+# Auto-detect (default, same as omitting --device)
+.\dist\diarize.exe --audio_path ".\voice\audio.wav" --output_dir ".\output" --model_dir ".\dist\models" --device auto
+```
+
 ---
 
-## 6. Rebuilding the Executable (PyInstaller)
-With `.venv` activated:
-```powershell
+## 6. Building the Executable (PyInstaller)
+
+> **Important**: PyInstaller **cannot cross-compile**. You must build on the same OS you are targeting. A Windows machine produces `.exe`, Linux produces a Linux binary, macOS produces a macOS binary.
+
+### Build Command
+
+With `.venv` activated, run from the project root:
+```
 python -m PyInstaller diarize.spec
 ```
 *(Running via `python -m PyInstaller` prevents path launcher errors if the environment directory was moved or renamed).*
+
+| Platform | Output |
+|----------|--------|
+| Windows  | `dist\diarize.exe` |
+| Linux    | `dist/diarize` |
+| macOS    | `dist/diarize` |
+
+### Common Steps (all platforms)
+
+**Step 1 — Clone and create virtual environment:**
+```bash
+git clone <your-repo-url>
+cd Diarization
+python -m venv .venv
+```
+
+**Step 2 — Activate the virtual environment:**
+
+| Platform           | Command |
+|--------------------|---------|
+| Windows PowerShell | `.\.venv\Scripts\Activate.ps1` |
+| Windows CMD        | `.\.venv\Scripts\activate.bat` |
+| Linux / macOS      | `source .venv/bin/activate` |
+
+Then follow the section below that matches your target device.
+
+---
+
+### Windows — GPU Build (NVIDIA CUDA)
+
+Requires an NVIDIA GPU and drivers on the target machine. Bundles CUDA 12.4 support.
+
+```powershell
+# Install PyTorch with CUDA 12.4
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist\diarize.exe`
+Run with: `--device cuda` or `--device auto`
+
+---
+
+### Windows — CPU-Only Build
+
+Lighter build (~200 MB vs ~2 GB), no GPU dependencies. Runs on any Windows machine.
+
+```powershell
+# Install PyTorch (CPU-only)
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist\diarize.exe`
+Run with: `--device cpu`
+
+---
+
+### Linux — GPU Build (NVIDIA CUDA)
+
+Requires an NVIDIA GPU and drivers on the target machine. Bundles CUDA 12.4 support.
+
+```bash
+# Install PyTorch with CUDA 12.4
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist/diarize`
+Run with: `--device cuda` or `--device auto`
+
+---
+
+### Linux — CPU-Only Build
+
+Lighter build, no GPU dependencies. Runs on any Linux machine.
+
+```bash
+# Install PyTorch (CPU-only)
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist/diarize`
+Run with: `--device cpu`
+
+---
+
+### macOS (Apple Silicon M1/M2/M3/M4) — GPU Build (MPS)
+
+Apple Silicon Macs support GPU acceleration via MPS (Metal Performance Shaders). PyTorch includes MPS support automatically.
+
+```bash
+# Install PyTorch (MPS backend is included automatically on Apple Silicon)
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist/diarize`
+Run with: `--device mps` or `--device auto`
+
+---
+
+### macOS (Intel) — CPU-Only Build
+
+Intel Macs do not support CUDA or MPS. CPU is the only option.
+
+```bash
+# Install PyTorch (CPU)
+pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
+pip install -r requirements.txt
+
+# Build
+python -m PyInstaller diarize.spec
+```
+
+Output: `dist/diarize`
+Run with: `--device cpu`
+
+---
+
+### After Building
+
+The built binary will be in the `dist/` folder. Distribute it together with the `models/` directory.
+
+> **Notes:**
+> - The models (`dist/models/`) are **not** bundled into the executable. Distribute them alongside the binary or use `download_models.py` on the target machine.
+> - The `requirements.txt` pins Windows CUDA wheels (`torch==2.6.0+cu124`). On Linux or macOS, pip will skip those since you already installed the correct PyTorch before `pip install -r requirements.txt`.
 
 ---
 

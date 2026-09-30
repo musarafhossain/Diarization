@@ -1,0 +1,16 @@
+usage: diarize.exe [-h] --audio_path AUDIO_PATH --output_dir OUTPUT_DIR
+                   --model_dir MODEL_DIR [--threshold THRESHOLD]
+
+Ilvi - Offline Speaker Diarization Engine (https://ilvi.ai/)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --audio_path AUDIO_PATH, --wav_path AUDIO_PATH
+                        Path to the input WAV audio file
+  --output_dir OUTPUT_DIR
+                        Directory to save the output diarization JSON
+  --model_dir MODEL_DIR
+                        Directory containing the offline pyannote models and
+                        config.yaml
+  --threshold THRESHOLD
+                        Clustering distance threshold (default 0.90)
